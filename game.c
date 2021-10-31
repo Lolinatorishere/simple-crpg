@@ -21,6 +21,7 @@ int endstate (int enemyQ){
 	}
 }
 
+
 int Enamesshort(int input){
 	switch(input){
             	case 1 :
@@ -139,7 +140,7 @@ int rng(){
 int PlayerLevel(){//Responsible for Calculating the Players Current Level
 	int CurLVL;
 	if (player[2]<46690){//the if statement caps the Level off at 30
-	 CurLVL = Data [0][3];
+	 CurLVL = player[3];
 		if(player[3]<((CurLVL*50+100)*(CurLVL+1))){
 			player[3] = CurLVL;
 		}
@@ -380,9 +381,16 @@ int menu(int GS){//all the in game menus/most the text ever
 		EnemyGS(GS);
         ES = endstate(GS);
 		if (ES == 0){
-			printf("The Player has won the game yay!");
-			gamestate = 0;
-			return gamestate;
+			if(player[0]>=1){
+				printf("The Player has won against");
+				gamestate = 200;
+				return gamestate;
+			}
+			else{
+				printf("the Player has died");
+				gamestate = 0;
+				return gamestate;
+			}
 		}
 		else{
             system("clear");
@@ -490,6 +498,17 @@ int menu(int GS){//all the in game menus/most the text ever
 		printf(" has hit the player for");
 		GS = 420;
 	}
+	else if(GS==200){
+		printf("Do you want to continue playing?\nIf yes press anything other than 0");
+		scanf("%d",&ES);
+		if(ES==0){
+			return ES;
+		}
+		else{
+			ES = 1;
+			return ES;
+		}	
+	}
 
 	else{// error that should never apear unless something went horibly wrong with the gamestate or i havent completed that part yet
 		system("clear");
@@ -499,7 +518,7 @@ int menu(int GS){//all the in game menus/most the text ever
 	}
 }
 
-int CE(int GS){
+int CE(int GS){ // Combat Engine is the main logic behind the combat and main events in the game.
 	int Result,EQ,Turn=0,Temp,e;
 	gamstat[4] = 0;
 	while (GS >= 1){
@@ -519,53 +538,53 @@ int CE(int GS){
 		EnemyDefault();
 		gamstat[3] += 1;	
 	}
-		if (Turn==0){
-            switch(GS){
-                case 1 : //player interactions
-                    GS = (EQ*10);
-				    GS = menu(GS);
-				break;
-                case 11:
-                    GS = menu(GS);
-				break;
-                
-                case 12:
-                    GS = menu(GS);
-                break;
+	if (Turn==0){
+		switch(GS){
+			case 1 : //player interactions
+				GS = (EQ*10);
+				GS = menu(GS);
+			break;
+			case 11:
+				GS = menu(GS);
+			break;
+			
+			case 12:
+				GS = menu(GS);
+			break;
 
-                case 13:
-                    GS = menu(GS);
-                break;
+			case 13:
+				GS = menu(GS);
+			break;
 
-                case 14:
-                    GS = menu(GS);
-                break;
-                
-                case 69:
-                    GS = 69;
-				    GS = menu(GS);
-                break;
+			case 14:
+				GS = menu(GS);
+			break;
+			
+			case 69:
+				GS = 69;
+				GS = menu(GS);
+			break;
 
-                case 68:
-                    gamstat[4] +=1;
-                    printf("\nhahalol turnchanger player");
-                break;
-            }
-
-		    if (GS>15&&GS<20){
-				Temp = GS-16; 
-				if(enemStat[0][Temp]>=1){
-				system("clear");
-				gamstat[1] = GS-15;
-				enemStat[0][Temp]-=player[1];
-				GS = menu(GS);	
-				}
-				else{
-					GS = 69;
-					GS = menu(GS);
-				}
-            }
+			case 68:
+				gamstat[4] +=1;
+				printf("\nhahalol turnchanger player");
+			break;
 		}
+
+		if (GS>15&&GS<20){
+			Temp = GS-16; 
+			if(enemStat[0][Temp]>=1){
+			system("clear");
+			gamstat[1] = GS-15;
+			enemStat[0][Temp]-=player[1];
+			GS = menu(GS);	
+			}
+			else{
+				GS = 69;
+				GS = menu(GS);
+			}
+		}
+	}
 	else{
 	    system("clear");
     	printf("enemy turn\n");
@@ -597,16 +616,17 @@ int CE(int GS){
          				    player[0] -= enemStat[1][I+3];
     	    		    break;
         		    }
-			        printf("\n\n");
-			        sleep (1);
+			        printf("\n");
                 }
                 else{
                     GS = 1;
                     Enemynames(I);
       		        printf("hes pretty dead ngl\n");
-        		    sleep (1);
+        		   
                 }
+				 
     		}
+			sleep (1);
             GS = 1;
             gamstat[4]+=1;
         }
@@ -615,6 +635,13 @@ int CE(int GS){
         GS = 0;
         }
     }
+	if(GS==200){
+		GS = menu(GS);
+		if(GS!=0){
+			gamstat[3] = 0;
+			player[0] = 500;
+		}
+	}
     }
 }
  
@@ -667,7 +694,7 @@ Data[1][0] I will always love you
 Data[3]: player inventory  (unused right now) 
     Data 0 to 7 Player inventory
 
-Data[15]: Game state data ()
+gamestat: Game state data ()
     Data 0 intermediate memory
     Data 1 Enemy selected
     Data 2 Enemy quant
